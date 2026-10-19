@@ -13,6 +13,24 @@ This repository audits a *frozen* echo embedding for exactly that, using only th
 
 The default subject is the 400-d R3D embedding of all 10,030 EchoNet-Dynamic videos released in [Team-Echo-MIT/r3d-v0-embeddings](https://github.com/Team-Echo-MIT/r3d-v0-embeddings) (Chung, Lee, Kaker, Zhao; *JACC: Advances* 2024 / IEEE I2MTC 2024). Any other embedding of the same videos — EchoCLIP, EchoPrime, PanEcho, EchoFM, EchoJEPA — can be dropped in for a side-by-side table.
 
+## First result: the R3D EchoNet-Dynamic embedding (all 10,030 videos)
+
+Full tables and figures in `results/`. Linear probes, 5-fold CV, 20-permutation null.
+
+| target | role | decodability | chance |
+|---|---|---|---|
+| EF / ESV / EDV | clinical | R² 0.48 / 0.55 / 0.47 | 0 |
+| acquired at the default 50 fps? | acquisition | **83% balanced accuracy** | 50% |
+| number of frames | acquisition | R² 0.44 | 0 |
+| frame rate (continuous) | acquisition | R² 0.30 | 0 |
+
+- **Acquisition is strongly encoded.** Clip length is almost as readable from the embedding as EF itself, and whether a clip was recorded at the scanner's default frame rate is readable at 83%.
+- **It is not a shortcut.** Metadata alone predicts EF at R² 0.02–0.03, and erasing any acquisition direction costs EF ≤ 0.01 R² beyond the random-direction control. The acquisition information sits in the embedding without the EF read-out leaning on it.
+- **But reliability is acquisition-dependent.** EF error is 15% higher on clips not at 50 fps (MAE 7.5 vs 6.5, Kruskal–Wallis p < 0.001) and 20% higher in the shortest-clip quartile (7.7 vs 6.3–6.5, p < 0.001). The model does not cheat off the scanner settings; it is simply worse on anything acquired off-default, which is what the next site looks like.
+- Frame geometry could not be probed: 10,024 of 10,030 videos are 112 × 112.
+
+Open question the cross-model table should settle: whether short or off-default clips are intrinsically harder (fewer cardiac cycles) or whether this particular encoder is fragile to them — a foundation model with the same stratified error pattern would point to the former.
+
 ## Why this is new
 
 Demographic leakage in echo models has been studied (Duffy et al. 2022 for end-to-end models; Tohyama et al. 2025 probing EchoPrime for sex and race). Scanner / site fingerprints in frozen foundation-model embeddings have been shown in brain MRI, fMRI, hematology, and fetal ultrasound. Nobody has yet probed an EF-trained echo video embedding for **acquisition parameters** or measured how much EF accuracy depends on them. `docs/related_work.md` has the full search with citations.
@@ -91,7 +109,7 @@ Other datasets map onto the same columns: rename to `FileName`, `EF`, `FPS`, `Nu
 
 ## Roadmap
 
-- [ ] Run on the real `FileList.csv`; publish `results/` as the first finding.
+- [x] Run on the real `FileList.csv`; `results/` is the first finding.
 - [ ] Extract EchoCLIP / EchoPrime / PanEcho / EchoJEPA embeddings of the same 10,030 videos (script ready) → cross-model shortcut table.
 - [x] Non-linear (MLP) measurement probe (`--probe mlp`).
 - [ ] Concept-erasure baselines beyond INLP (LEACE).

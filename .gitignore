@@ -8,7 +8,7 @@ echonet_embeddings.txt
 *.parquet
 
 # outputs
-results*/
+results_*/
 
 # python
 __pycache__/
