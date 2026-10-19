@@ -29,7 +29,14 @@ class AuditConfig:
 
 
 def _constant(v: np.ndarray) -> bool:
-    return len(np.unique(v)) < 2
+    """Constant, or categorical with a class too small to cross-validate."""
+    vals, counts = np.unique(v, return_counts=True)
+    if len(vals) < 2:
+        return True
+    from .data import MIN_CLASS_COUNT
+    from .probes import is_categorical
+
+    return bool(is_categorical(v) and counts.min() < MIN_CLASS_COUNT)
 
 
 def run_audit(ds: Dataset, cfg: AuditConfig | None = None, log=print) -> dict:

@@ -10,7 +10,8 @@ import pandas as pd
 
 # Columns of EchoNet-Dynamic's FileList.csv. Other datasets can map onto this.
 CLINICAL_TARGETS = ["EF", "ESV", "EDV"]
-NUISANCE_TARGETS = ["FPS", "FrameHeight", "FrameWidth", "NumberOfFrames"]
+NUISANCE_TARGETS = ["FPS", "FPS_modal", "FrameHeight", "FrameWidth", "NumberOfFrames"]
+MIN_CLASS_COUNT = 20  # a categorical target whose rarest class is smaller than this is skipped
 EF_BINS = [-np.inf, 40.0, 50.0, np.inf]
 EF_BIN_LABELS = ["EF<40", "40<=EF<50", "EF>=50"]
 
@@ -105,6 +106,11 @@ def join(ids: np.ndarray, X: np.ndarray, meta: pd.DataFrame, source: str = "embe
         ds.notes.append(f"{dropped} embeddings had no metadata row and were dropped")
     if "EF" in ds.meta.columns:
         ds.meta["EF_bin"] = pd.cut(ds.meta["EF"], EF_BINS, labels=EF_BIN_LABELS, right=False)
+    if "FPS" in ds.meta.columns and "FPS_modal" not in ds.meta.columns:
+        # "was this clip acquired at the scanner's default frame rate" — a clean binary that
+        # survives when FPS itself is near-continuous (EchoNet-Dynamic: 79% at 50 fps)
+        mode = ds.meta["FPS"].mode().iloc[0]
+        ds.meta["FPS_modal"] = np.where(ds.meta["FPS"] == mode, f"fps={mode}", "other")
     return ds
 
 
