@@ -72,7 +72,7 @@ def partial_r2(
 def _bin(v: np.ndarray, max_bins: int = 4) -> np.ndarray:
     if len(np.unique(v)) <= max_bins:
         return v.astype(str)
-    q = pd.qcut(v, q=max_bins, duplicates="drop")
+    q = pd.qcut(pd.Series(v), q=max_bins, duplicates="drop")
     return q.astype(str).to_numpy()
 
 
