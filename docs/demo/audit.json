@@ -1,0 +1,413 @@
+{
+  "version": "0.1.0",
+  "source": "/home/claude/team-echo-mit/r3d-v0-embeddings/echonet_embeddings.txt + synthetic labels",
+  "n": 10030,
+  "d": 400,
+  "config": {
+    "clinical": [
+      "EF",
+      "ESV",
+      "EDV"
+    ],
+    "nuisance": [
+      "FPS",
+      "FrameHeight",
+      "FrameWidth",
+      "NumberOfFrames"
+    ],
+    "n_splits": 5,
+    "n_permutations": 10,
+    "inlp_iterations": 8,
+    "seed": 0,
+    "max_rows": null,
+    "pca_dim": null
+  },
+  "skipped_targets": [
+    "FrameHeight",
+    "FrameWidth"
+  ],
+  "notes": [
+    "labels are SYNTHETIC; numbers here validate the pipeline, not the model"
+  ],
+  "probes": {
+    "EF": {
+      "target": "EF",
+      "kind": "regression",
+      "n": 10030,
+      "score": 0.6827050961324269,
+      "score_std": 0.008689701192310079,
+      "secondary": 4.841721737254058,
+      "chance": 0.0,
+      "null_mean": -0.004947709757904284,
+      "null_std": 0.0009981655635894339,
+      "p_value": 0.09090909090909091,
+      "n_permutations": 10,
+      "classes": null,
+      "above_chance": 0.6827050961324269,
+      "z_vs_null": 688.9165795476962,
+      "decodable": true
+    },
+    "ESV": {
+      "target": "ESV",
+      "kind": "regression",
+      "n": 10030,
+      "score": 0.4283263617389388,
+      "score_std": 0.008965644004895057,
+      "secondary": 11.456870546647108,
+      "chance": 0.0,
+      "null_mean": -0.004976904223417655,
+      "null_std": 0.0009336564603560193,
+      "p_value": 0.09090909090909091,
+      "n_permutations": 10,
+      "classes": null,
+      "above_chance": 0.4283263617389388,
+      "z_vs_null": 464.0928268167613,
+      "decodable": true
+    },
+    "EDV": {
+      "target": "EDV",
+      "kind": "regression",
+      "n": 10030,
+      "score": 0.06775177614453698,
+      "score_std": 0.006922923502775347,
+      "secondary": 20.300556827442474,
+      "chance": 0.0,
+      "null_mean": -0.005660665002595211,
+      "null_std": 0.0010241827832070947,
+      "p_value": 0.09090909090909091,
+      "n_permutations": 10,
+      "classes": null,
+      "above_chance": 0.06775177614453698,
+      "z_vs_null": 71.67904240417977,
+      "decodable": true
+    },
+    "FPS": {
+      "target": "FPS",
+      "kind": "classification",
+      "n": 10030,
+      "score": 0.6308036626680104,
+      "score_std": 0.011500749828058363,
+      "secondary": 0.8205478490542513,
+      "chance": 0.3333333333333333,
+      "null_mean": 0.3343112338978228,
+      "null_std": 0.00524216211464378,
+      "p_value": 0.09090909090909091,
+      "n_permutations": 10,
+      "classes": [
+        "30",
+        "50",
+        "60"
+      ],
+      "above_chance": 0.29747032933467704,
+      "z_vs_null": 56.55918727540823,
+      "decodable": true
+    },
+    "NumberOfFrames": {
+      "target": "NumberOfFrames",
+      "kind": "regression",
+      "n": 10030,
+      "score": 0.5746720258180774,
+      "score_std": 0.01366608961842704,
+      "secondary": 33.90912261841186,
+      "chance": 0.0,
+      "null_mean": -0.00541421220446654,
+      "null_std": 0.0013778009765865553,
+      "p_value": 0.09090909090909091,
+      "n_permutations": 10,
+      "classes": null,
+      "above_chance": 0.5746720258180774,
+      "z_vs_null": 421.02324492444734,
+      "decodable": true
+    }
+  },
+  "random_controls": {
+    "EF": {
+      "target": "EF~random",
+      "kind": "regression",
+      "n": 10030,
+      "score": -0.011939901627343597,
+      "score_std": 0.006470517529514825,
+      "secondary": 8.646416015701066,
+      "chance": 0.0,
+      "null_mean": NaN,
+      "null_std": NaN,
+      "p_value": 1.0,
+      "n_permutations": 0,
+      "classes": null,
+      "above_chance": -0.011939901627343597,
+      "z_vs_null": NaN,
+      "decodable": false
+    },
+    "ESV": {
+      "target": "ESV~random",
+      "kind": "regression",
+      "n": 10030,
+      "score": -0.010545573321082191,
+      "score_std": 0.008848450913988433,
+      "secondary": 15.421177116325584,
+      "chance": 0.0,
+      "null_mean": NaN,
+      "null_std": NaN,
+      "p_value": 1.0,
+      "n_permutations": 0,
+      "classes": null,
+      "above_chance": -0.010545573321082191,
+      "z_vs_null": NaN,
+      "decodable": false
+    },
+    "EDV": {
+      "target": "EDV~random",
+      "kind": "regression",
+      "n": 10030,
+      "score": -0.009028196872889582,
+      "score_std": 0.006585005152730028,
+      "secondary": 21.085489819847098,
+      "chance": 0.0,
+      "null_mean": NaN,
+      "null_std": NaN,
+      "p_value": 1.0,
+      "n_permutations": 0,
+      "classes": null,
+      "above_chance": -0.009028196872889582,
+      "z_vs_null": NaN,
+      "decodable": false
+    },
+    "FPS": {
+      "target": "FPS~random",
+      "kind": "classification",
+      "n": 10030,
+      "score": 0.33451842783679536,
+      "score_std": 0.004264075457216938,
+      "secondary": 0.5015122673599688,
+      "chance": 0.3333333333333333,
+      "null_mean": NaN,
+      "null_std": NaN,
+      "p_value": 1.0,
+      "n_permutations": 0,
+      "classes": [
+        "30",
+        "50",
+        "60"
+      ],
+      "above_chance": 0.0011850945034620475,
+      "z_vs_null": NaN,
+      "decodable": false
+    },
+    "NumberOfFrames": {
+      "target": "NumberOfFrames~random",
+      "kind": "regression",
+      "n": 10030,
+      "score": -0.013378755568647538,
+      "score_std": 0.0055664260405295886,
+      "secondary": 53.27597917155516,
+      "chance": 0.0,
+      "null_mean": NaN,
+      "null_std": NaN,
+      "p_value": 1.0,
+      "n_permutations": 0,
+      "classes": null,
+      "above_chance": -0.013378755568647538,
+      "z_vs_null": NaN,
+      "decodable": false
+    }
+  },
+  "clinical_targets": [
+    "EF",
+    "ESV",
+    "EDV"
+  ],
+  "nuisance_targets": [
+    "FPS",
+    "NumberOfFrames"
+  ],
+  "primary_target": "EF",
+  "metadata_only": {
+    "target": "EF",
+    "nuisance_columns": [
+      "FPS",
+      "NumberOfFrames"
+    ],
+    "linear_r2": 0.007792357464690869,
+    "linear_p_value": 0.047619047619047616,
+    "boosted_r2": 0.002671656770445452
+  },
+  "partial_r2": {
+    "target": "EF",
+    "r2_embedding": 0.6827050961324269,
+    "r2_metadata": 0.007792357464690869,
+    "r2_both": 0.6826789739798887,
+    "embedding_beyond_metadata": 0.6748866165151979,
+    "metadata_beyond_embedding": -2.6122152538166077e-05
+  },
+  "stratified_error": [
+    {
+      "target": "EF",
+      "stratum": "FPS",
+      "bins": {
+        "30": {
+          "n": 3533,
+          "mae": 4.8125085420065945
+        },
+        "50": {
+          "n": 3552,
+          "mae": 4.890955035321348
+        },
+        "60": {
+          "n": 2945,
+          "mae": 4.817386777686749
+        }
+      },
+      "kruskal_H": 1.7024462020744977,
+      "kruskal_p": 0.42689247987309364,
+      "mae_range": 0.07844649331475306
+    },
+    {
+      "target": "EF",
+      "stratum": "NumberOfFrames",
+      "bins": {
+        "(120.0, 166.0]": {
+          "n": 2525,
+          "mae": 4.787796932469737
+        },
+        "(166.0, 444.0]": {
+          "n": 2474,
+          "mae": 4.901719716903946
+        },
+        "(23.999, 73.0]": {
+          "n": 2513,
+          "mae": 4.799070122260001
+        },
+        "(73.0, 120.0]": {
+          "n": 2518,
+          "mae": 4.879413809893716
+        }
+      },
+      "kruskal_H": 1.5241469095053617,
+      "kruskal_p": 0.6767085544964103,
+      "mae_range": 0.11392278443420878
+    }
+  ],
+  "cost_curves": {
+    "FPS": {
+      "nuisance": "FPS",
+      "iterations": [
+        0,
+        1,
+        2
+      ],
+      "nuisance_score": [
+        0.6228302448103401,
+        0.2615311277174989,
+        0.17675279651504183
+      ],
+      "nuisance_chance": 0.3333333333333333,
+      "clinical": {
+        "EF": [
+          0.6755061010203844,
+          0.6630966515571619,
+          0.6339971946812786
+        ],
+        "ESV": [
+          0.41308682453265155,
+          0.4049073976631211,
+          0.3857361534776145
+        ],
+        "EDV": [
+          0.04484504642304277,
+          0.04318972079758754,
+          0.03811051923366349
+        ]
+      },
+      "rank_removed": [
+        0,
+        3,
+        6
+      ],
+      "random_control": {
+        "EF": [
+          0.6611270499124882,
+          0.005830829597287665
+        ],
+        "ESV": [
+          0.4032668952210467,
+          0.004608475831023667
+        ],
+        "EDV": [
+          0.0433437369755986,
+          0.0013902891301388908
+        ]
+      },
+      "price": {
+        "EF": 0.04150890633910587,
+        "ESV": 0.02735067105503708,
+        "EDV": 0.00673452718937928
+      },
+      "price_vs_random": {
+        "EF": 0.027129855231209588,
+        "ESV": 0.01753074174343222,
+        "EDV": 0.005233217741935116
+      }
+    },
+    "NumberOfFrames": {
+      "nuisance": "NumberOfFrames",
+      "iterations": [
+        0,
+        1,
+        2
+      ],
+      "nuisance_score": [
+        0.564813025058778,
+        -0.04186873247776379,
+        -0.04186879735463234
+      ],
+      "nuisance_chance": 0.0,
+      "clinical": {
+        "EF": [
+          0.6755061010203844,
+          0.6598000721869506,
+          0.6597999759550979
+        ],
+        "ESV": [
+          0.41308682453265155,
+          0.4028882888856644,
+          0.402888160440505
+        ],
+        "EDV": [
+          0.04484504642304277,
+          0.042644515675129835,
+          0.04264319761917201
+        ]
+      },
+      "rank_removed": [
+        0,
+        1,
+        2
+      ],
+      "random_control": {
+        "EF": [
+          0.6704683223903029,
+          0.003143598455538481
+        ],
+        "ESV": [
+          0.41009381768222,
+          0.0020643851032934347
+        ],
+        "EDV": [
+          0.04444358074189647,
+          0.0003096990177030243
+        ]
+      },
+      "price": {
+        "EF": 0.01570612506528657,
+        "ESV": 0.010198664092146537,
+        "EDV": 0.002201848803870754
+      },
+      "price_vs_random": {
+        "EF": 0.010668346435204978,
+        "ESV": 0.007205657241714958,
+        "EDV": 0.0018003831227244582
+      }
+    }
+  },
+  "seconds": 1098.8
+}
