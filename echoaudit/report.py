@@ -109,7 +109,6 @@ def run_audit(ds: Dataset, cfg: AuditConfig | None = None, log=print) -> dict:
             seed=cfg.seed,
         )
         out["cost_curves"][nz] = cc.to_dict()
-        out["cost_curves"][nz]["price"] = {c: cc.price(c) for c in clinical}
         log(
             f"  {nz}: {cc.nuisance_score[0]:.3f} -> {cc.nuisance_score[-1]:.3f} after rank {cc.rank_removed[-1]}; "
             + ", ".join(f"{c} {cc.clinical[c][0]:.3f}->{cc.clinical[c][-1]:.3f}" for c in clinical)
@@ -176,21 +175,34 @@ def to_markdown(res: dict) -> str:
         lines += ["", "## Price of erasing each nuisance (INLP)", ""]
         lines.append(
             "| nuisance | decodability before → after | rank removed | "
-            + " | ".join(f"Δ{c}" for c in res["clinical_targets"])
+            + " | ".join(
+                f"{c}: before → after (random ctrl) → excess price" for c in res["clinical_targets"]
+            )
             + " |"
         )
         lines.append("|---|---|---|" + "---|" * len(res["clinical_targets"]))
         for nz, cc in res["cost_curves"].items():
-            deltas = " | ".join(
-                f"{cc['clinical'][c][0]:.3f} → {cc['clinical'][c][-1]:.3f} ({cc['price'][c]:+.3f})"
-                for c in res["clinical_targets"]
-            )
+            cells = []
+            for c in res["clinical_targets"]:
+                before, after = cc["clinical"][c][0], cc["clinical"][c][-1]
+                rc = cc.get("random_control", {}).get(c)
+                rc_txt = f"{rc[0]:.3f} ± {rc[1]:.3f}" if rc else "n/a"
+                cells.append(
+                    f"{before:.3f} → {after:.3f} ({rc_txt}) → **{cc['price_vs_random'][c]:+.3f}**"
+                )
             lines.append(
-                f"| {nz} | {cc['nuisance_score'][0]:.3f} → {cc['nuisance_score'][-1]:.3f} (chance {cc['nuisance_chance']:.2f}) | {cc['rank_removed'][-1]} | {deltas} |"
+                f"| {nz} | {cc['nuisance_score'][0]:.3f} → {cc['nuisance_score'][-1]:.3f} (chance {cc['nuisance_chance']:.2f}) | {cc['rank_removed'][-1]} | "
+                + " | ".join(cells)
+                + " |"
             )
         lines.append("")
         lines.append(
-            "Δ is the drop in clinical decodability once the nuisance is no longer linearly decodable. Near zero means the clinical signal did not depend on that nuisance; a large drop means the embedding was leaning on it."
+            "Erasure runs in a PCA-whitened copy of the embedding until the nuisance is no longer linearly decodable. "
+            "Every projection costs a little, so the same number of random directions is removed as a control; "
+            "the **excess price** (random-control score minus post-erasure score) is the amount of clinical signal that "
+            "shared directions with the nuisance. Near zero: encoded but not load-bearing. Clearly positive: the clinical "
+            "signal was riding on acquisition geometry. A nuisance score that overshoots below chance is an INLP artifact "
+            "(directions are fit on all rows), not evidence of anything."
         )
     return "\n".join(lines) + "\n"
 
@@ -235,7 +247,18 @@ def save_figures(res: dict, out_dir: Path) -> list[Path]:
             ax.plot(it, cc["nuisance_score"], "o-", color="#c05621", label=f"{nz} (nuisance)")
             ax.axhline(cc["nuisance_chance"], color="#c05621", ls=":", lw=0.8)
             for c, s in cc["clinical"].items():
-                ax.plot(it, s, "s-", label=c)
+                (line,) = ax.plot(it, s, "s-", label=c)
+                rc = cc.get("random_control", {}).get(c)
+                if rc:
+                    ax.plot(
+                        it[-1],
+                        rc[0],
+                        "x",
+                        color=line.get_color(),
+                        ms=9,
+                        mew=2,
+                        label=f"{c}: random-rank control",
+                    )
             ax.set_xlabel("INLP iteration")
             ax.set_ylabel("decodability")
             ax.set_title(f"Erasing {nz}")

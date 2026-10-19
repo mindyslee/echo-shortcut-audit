@@ -100,6 +100,8 @@ def test_cost_curve_removes_nuisance(synth):
     assert cc.nuisance_score[-1] < cc.nuisance_chance + 0.08
     assert len(cc.clinical["EF"]) == len(cc.iterations)
     assert cc.rank_removed[-1] > 0
+    assert set(cc.random_control) == {"EF"}
+    assert abs(cc.price_vs_random("EF")) < 0.15
 
 
 def test_stratify_pieces(synth):

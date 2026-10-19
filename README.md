@@ -9,7 +9,7 @@ This repository audits a *frozen* echo embedding for exactly that, using only th
 1. **Probe** — cross-validated linear probes for clinical targets (EF, ESV, EDV) and acquisition nuisances (FPS, frame height/width, number of frames), each against a permutation null and a random-matrix control.
 2. **Baseline** — how much EF is predictable from acquisition metadata *alone*, and how much the embedding adds beyond it (partial R²).
 3. **Stratify** — is the embedding's EF error uneven across frame-rate / clip-length bins? (Kruskal–Wallis)
-4. **Erase and price** — iterative null-space projection ([INLP](https://aclanthology.org/2020.acl-main.647/)) removes each nuisance until it is no longer linearly decodable, then every clinical target is re-probed. The drop is the price of the shortcut.
+4. **Erase and price** — iterative null-space projection ([INLP](https://aclanthology.org/2020.acl-main.647/)) in a PCA-whitened copy of the embedding removes each nuisance until it is no longer linearly decodable, then every clinical target is re-probed. The same number of *random* directions is removed as a control, and the excess drop beyond that control is the price of the shortcut.
 
 The default subject is the 400-d R3D embedding of all 10,030 EchoNet-Dynamic videos released in [Team-Echo-MIT/r3d-v0-embeddings](https://github.com/Team-Echo-MIT/r3d-v0-embeddings) (Chung, Lee, Kaker, Zhao; *JACC: Advances* 2024 / IEEE I2MTC 2024). Any other embedding of the same videos — EchoCLIP, EchoPrime, PanEcho, EchoFM, EchoJEPA — can be dropped in for a side-by-side table.
 
@@ -65,12 +65,14 @@ A full run (10,030 × 400, 20 permutations, 5-fold) takes roughly 10–20 minute
 
 **Stratified error.** If EF error differs across FPS bins or clip-length quartiles, the model is not equally reliable across acquisition settings, and that is what will show up at the next site.
 
-**Price of erasure.** INLP removes one linear direction per class per iteration until the nuisance sits at chance. Each clinical target is re-probed after every step:
+**Price of erasure.** INLP removes one linear direction per class per iteration until the nuisance sits at chance; each clinical target is re-probed after every step, and then once more after removing the same rank of random directions. Read the **excess price** (random-control score − post-erasure score):
 
-- EF holds, nuisance falls → the nuisance was encoded but not load-bearing. Reassuring.
-- EF falls with the nuisance → the EF-relevant subspace overlaps the acquisition subspace. The embedding is partly reading the scanner, not the heart.
+- near zero → the nuisance was encoded but not load-bearing. Reassuring.
+- clearly positive → the EF-relevant subspace overlaps the acquisition subspace. The embedding is partly reading the scanner, not the heart.
 
-The synthetic demo plants EF and the nuisance along *independent* random directions, so a correct audit shows a large nuisance drop with near-zero EF cost; it is the pipeline's own sanity check.
+Erasure happens in a whitened space on purpose: with an anisotropic covariance a probe's weight vector is not the signal direction, projecting it out leaves most of the leak in place, and INLP crawls. Whitening fixes that, and linear decodability is invariant to it.
+
+The synthetic demo plants EF and the nuisance along random directions with a planted leak of known strength; a correct audit drives the nuisance to chance in one or two steps at an excess EF price near zero (`docs/demo/` has the output on the real embeddings). It is the pipeline's own sanity check, not a result about the model.
 
 ## Plugging in other embeddings
 
@@ -83,7 +85,7 @@ Other datasets map onto the same columns: rename to `FileName`, `EF`, `FPS`, `Nu
 - EchoNet-Dynamic is single-site, single-vendor, 112 × 112, so frame geometry is constant and vendor/probe labels do not exist. Frame rate and clip length are the only acquisition fields it offers; a multi-vendor audit needs another dataset.
 - Linear probes bound *linear* decodability. A nuisance that survives INLP could still be read non-linearly; an MLP probe is the obvious extension.
 - "Price of erasure" is measured with a linear EF probe on the projected embedding, not by retraining the video model. It bounds what a linear head would lose, which is the relevant quantity for the frozen-embedding use case.
-- INLP removes directions greedily and can over-remove when nuisance and clinical subspaces overlap; the per-iteration curve, not just the endpoint, is the thing to look at.
+- INLP removes directions greedily and can over-remove when nuisance and clinical subspaces overlap; the per-iteration curve, not just the endpoint, is the thing to look at. A nuisance score that overshoots *below* chance after erasure is an artifact of fitting directions on all rows, not a finding.
 
 ## Roadmap
 
