@@ -308,7 +308,7 @@ def main(argv: list[str] | None = None) -> int:
             v = adapter.embed(read_avi(p))
             ids.append(p.stem)
             X.append(v.astype(np.float32))
-        except Exception as e:  # keep going; report at the end
+        except Exception as e:  # noqa: BLE001 - one bad video must not kill a 10k-video run
             failed.append((p.name, str(e)[:120]))
         if (i + 1) % 200 == 0:
             print(f"  {i + 1}/{len(paths)}", file=sys.stderr)
