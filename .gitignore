@@ -1,0 +1,26 @@
+# data (never commit DUA-covered files)
+data/
+*.csv
+!tests/**/*.csv
+echonet_embeddings.txt
+*.avi
+*.npz
+*.parquet
+
+# outputs
+results*/
+
+# python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# editors / os
+.DS_Store
+.vscode/
+.idea/
