@@ -76,6 +76,8 @@ The synthetic demo plants EF and the nuisance along random directions with a pla
 
 ## Plugging in other embeddings
 
+`scripts/extract_embeddings.py` produces a compatible `.npz` from EchoCLIP, EchoPrime, PanEcho, EchoFM or EchoJEPA given the videos and a GPU; `docs/extraction.md` has the per-model details, and `scripts/add_video_metadata.py` fills in the acquisition columns EchoNet-Pediatric lacks.
+
 Any file keyed by EchoNet video id works: `.txt` (`<id> v1 … vd` per line), `.npz` with arrays `ids` and `X`, or `.csv`/`.parquet` with the id in the first column. Generate them from the released weights of EchoCLIP, EchoPrime, PanEcho, EchoFM or EchoJEPA, point `--embeddings` at each, and compare `audit.json` files. `--pca 64` probes a reduced embedding if you want to control for dimensionality.
 
 Other datasets map onto the same columns: rename to `FileName`, `EF`, `FPS`, `NumberOfFrames`, … (anything absent or constant is skipped) and pass `--nuisance` / `--clinical` to override the target lists. EchoNet-Pediatric adds `Age`, `Sex`, `Weight`, `Height`, which the same machinery can treat as nuisances or targets.
@@ -90,8 +92,9 @@ Other datasets map onto the same columns: rename to `FileName`, `EF`, `FPS`, `Nu
 ## Roadmap
 
 - [ ] Run on the real `FileList.csv`; publish `results/` as the first finding.
-- [ ] Add EchoCLIP / EchoPrime / PanEcho / EchoJEPA embeddings of the same 10,030 videos → cross-model shortcut table.
-- [ ] Non-linear (MLP) probes and concept-erasure baselines (LEACE).
+- [ ] Extract EchoCLIP / EchoPrime / PanEcho / EchoJEPA embeddings of the same 10,030 videos (script ready) → cross-model shortcut table.
+- [x] Non-linear (MLP) measurement probe (`--probe mlp`).
+- [ ] Concept-erasure baselines beyond INLP (LEACE).
 - [ ] EchoNet-Pediatric: do the acquisition directions found on adults predict where pediatric EF error concentrates?
 - [ ] Write-up.
 
