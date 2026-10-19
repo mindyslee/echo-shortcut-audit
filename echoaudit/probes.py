@@ -12,11 +12,48 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression, RidgeCV
 from sklearn.metrics import balanced_accuracy_score, mean_absolute_error, r2_score, roc_auc_score
 from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 RIDGE_ALPHAS = np.logspace(-2, 4, 13)
 MAX_CATEGORIES = 12  # a numeric target with at most this many distinct values is categorical
+
+# "linear" (default) bounds linear decodability; "mlp" asks whether a nuisance survives
+# non-linearly after linear erasure. Set once via ``set_probe_family`` (the CLI's --probe).
+PROBE_FAMILY = "linear"
+MLP_HIDDEN = (256,)
+
+
+def set_probe_family(family: str) -> None:
+    global PROBE_FAMILY
+    if family not in {"linear", "mlp"}:
+        raise ValueError("probe family must be 'linear' or 'mlp'")
+    PROBE_FAMILY = family
+
+
+def _regressor(seed: int):
+    if PROBE_FAMILY == "mlp":
+        return MLPRegressor(
+            hidden_layer_sizes=MLP_HIDDEN,
+            alpha=1e-3,
+            early_stopping=True,
+            max_iter=300,
+            random_state=seed,
+        )
+    return RidgeCV(alphas=RIDGE_ALPHAS)
+
+
+def _classifier(seed: int):
+    if PROBE_FAMILY == "mlp":
+        return MLPClassifier(
+            hidden_layer_sizes=MLP_HIDDEN,
+            alpha=1e-3,
+            early_stopping=True,
+            max_iter=300,
+            random_state=seed,
+        )
+    return LogisticRegression(C=1.0, max_iter=2000, class_weight="balanced")
 
 
 @dataclass
@@ -80,7 +117,7 @@ def _regression_cv(
     pred = np.zeros_like(y, dtype=float)
     folds: list[float] = []
     for tr, te in kf.split(X):
-        model = make_pipeline(StandardScaler(), RidgeCV(alphas=RIDGE_ALPHAS))
+        model = make_pipeline(StandardScaler(), _regressor(seed))
         model.fit(X[tr], y[tr])
         pred[te] = model.predict(X[te])
         folds.append(float(r2_score(y[te], pred[te])))
@@ -99,10 +136,7 @@ def _classification_cv(
     proba = np.zeros((len(y_enc), len(classes)))
     folds: list[float] = []
     for tr, te in skf.split(X, y_enc):
-        model = make_pipeline(
-            StandardScaler(),
-            LogisticRegression(C=1.0, max_iter=2000, class_weight="balanced"),
-        )
+        model = make_pipeline(StandardScaler(), _classifier(seed))
         model.fit(X[tr], y_enc[tr])
         p = model.predict_proba(X[te])
         # align columns in case a fold is missing a class
@@ -121,7 +155,7 @@ def probe(
     seed: int = 0,
     return_predictions: bool = False,
 ) -> ProbeResult | tuple[ProbeResult, np.ndarray]:
-    """Cross-validated linear probe with a label-permutation null."""
+    """Cross-validated probe (linear by default, see PROBE_FAMILY) with a permutation null."""
     y = np.asarray(y)
     rng = np.random.default_rng(seed)
     if is_categorical(y):

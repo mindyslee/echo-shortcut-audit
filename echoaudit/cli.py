@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from .data import join, load_dataset, load_embeddings, make_synthetic_filelist
+from .probes import set_probe_family
 from .report import AuditConfig, run_audit, write_report
 
 
@@ -25,6 +26,12 @@ def _add_common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--max-rows", type=int, default=None, help="subsample for a quick pass")
     p.add_argument("--pca", type=int, default=None, help="probe a PCA-reduced embedding instead")
+    p.add_argument(
+        "--probe",
+        choices=["linear", "mlp"],
+        default="linear",
+        help="measurement probe family; erasure directions are always linear",
+    )
     p.add_argument("--clinical", nargs="*", default=None, help="override clinical target columns")
     p.add_argument("--nuisance", nargs="*", default=None, help="override nuisance target columns")
 
@@ -68,6 +75,7 @@ def main(argv: list[str] | None = None) -> int:
 
     a = ap.parse_args(argv)
     cfg = _config(a)
+    set_probe_family(a.probe)
 
     if a.cmd == "run":
         ds = load_dataset(a.embeddings, a.filelist)

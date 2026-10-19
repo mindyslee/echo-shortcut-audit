@@ -48,8 +48,11 @@ def run_audit(ds: Dataset, cfg: AuditConfig | None = None, log=print) -> dict:
     clinical = [c for c in ds.available(cfg.clinical) if not _constant(meta[c].to_numpy())]
     nuisance = [c for c in ds.available(cfg.nuisance) if not _constant(meta[c].to_numpy())]
     skipped = [c for c in cfg.clinical + cfg.nuisance if c not in clinical + nuisance]
+    from . import probes as _probes
+
     out: dict = {
         "version": __version__,
+        "probe_family": _probes.PROBE_FAMILY,
         "source": ds.source,
         "n": int(X.shape[0]),
         "d": int(X.shape[1]),

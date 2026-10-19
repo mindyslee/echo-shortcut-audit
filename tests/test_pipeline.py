@@ -125,3 +125,16 @@ def test_full_audit_and_report(synth, tmp_path):
     assert "Decodability" in md and "FPS" in md
     paths = write_report(res, tmp_path)
     assert paths["json"].exists() and paths["markdown"].exists() and paths["decodability"].exists()
+
+
+def test_mlp_probe_family(synth):
+    from echoaudit import probes as P
+
+    P.set_probe_family("mlp")
+    try:
+        r = probe(synth.X, synth.target("EF"), "EF", n_permutations=0, n_splits=3)
+        assert r.kind == "regression" and r.score > 0.2
+    finally:
+        P.set_probe_family("linear")
+    with pytest.raises(ValueError):
+        P.set_probe_family("svm")
