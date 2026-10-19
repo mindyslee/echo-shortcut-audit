@@ -9,6 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.10", "3.12"]
     steps:
@@ -17,7 +18,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install -e ".[dev]"
+      - run: pip list --format=freeze | grep -iE "^(numpy|pandas|scikit-learn|scipy)="
       - run: ruff check .
-      - run: pytest -q
+      - name: pytest
+        run: |
+          set +e
+          pytest -q --tb=short -rf > pytest.log 2>&1
+          rc=$?
+          cat pytest.log
+          if [ $rc -ne 0 ]; then
+            sed -n '/FAILURES\|short test summary/,$p' pytest.log | head -80 | sed 's/^/::error::/'
+          fi
+          exit $rc
       - name: synthetic end-to-end demo
         run: echoaudit demo --out /tmp/demo --n 800 --permutations 3 --inlp-iterations 3
